@@ -1,0 +1,145 @@
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+// Base class for a User
+class User {
+protected:
+    string name;
+    string email;
+
+public:
+    User(string n, string e) : name(n), email(e) {}
+    virtual void display() const {
+        cout << "Name: " << name << ", Email: " << email << endl;
+    }
+    string getEmail() const { return email; }
+    string getName() const { return name; }
+};
+
+// Derived class for a Subscriber
+class Subscriber : public User {
+private:
+    string subscriptionType;
+    double subscriptionFee;
+    int subscriptionDuration; // Duration in months
+
+public:
+    Subscriber(string n, string e, string type, double fee, int duration)
+        : User(n, e), subscriptionType(type), subscriptionFee(fee), subscriptionDuration(duration) {}
+
+    void display() const override {
+        User::display();
+        cout << "Subscription Type: " << subscriptionType << ", Fee: $" << subscriptionFee 
+             << ", Duration: " << subscriptionDuration << " months" << endl;
+    }
+
+    string getSubscriptionType() const { return subscriptionType; }
+};
+
+// Subscription Management System
+class SubscriptionManagementSystem {
+private:
+    vector<Subscriber> subscribers;
+
+public:
+    void addSubscriber(const Subscriber& sub) {
+        subscribers.push_back(sub);
+    }
+
+    void removeSubscriber(const string& email) {
+        for (auto it = subscribers.begin(); it != subscribers.end(); ++it) {
+            if (it->getEmail() == email) {
+                subscribers.erase(it);
+                cout << "Subscriber with email " << email << " removed successfully.\n";
+                return;
+            }
+        }
+        cout << "Subscriber not found.\n";
+    }
+
+    void searchSubscriber(const string& email) const {
+        for (const auto& sub : subscribers) {
+            if (sub.getEmail() == email) {
+                cout << "Subscriber found:\n";
+                sub.display();
+                return;
+            }
+        }
+        cout << "Subscriber not found.\n";
+    }
+
+    void listSubscribersByType(const string& type) const {
+        bool found = false;
+        for (const auto& sub : subscribers) {
+            if (sub.getSubscriptionType() == type) {
+                sub.display();
+                cout << "---------------------\n";
+                found = true;
+            }
+        }
+        if (!found) cout << "No subscribers found for type: " << type << "\n";
+    }
+
+    void displaySubscribers() const {
+        if (subscribers.empty()) {
+            cout << "No subscribers found.\n";
+            return;
+        }
+        for (const auto& sub : subscribers) {
+            sub.display();
+            cout << "---------------------\n";
+        }
+    }
+};
+
+int main() {
+    SubscriptionManagementSystem sms;
+
+    // Adding subscribers
+    sms.addSubscriber(Subscriber("Alice Johnson", "alice@example.com", "Premium", 49.99, 12));
+    sms.addSubscriber(Subscriber("Bob Smith", "bob@example.com", "Basic", 19.99, 6));
+    sms.addSubscriber(Subscriber("Charlie Brown", "charlie@example.com", "Premium", 49.99, 3));
+
+    int choice;
+    string email, type;
+    do {
+        cout << "\nSubscription Management System\n";
+        cout << "1. Display all subscribers\n";
+        cout << "2. Search subscriber by email\n";
+        cout << "3. Remove subscriber\n";
+        cout << "4. List subscribers by type\n";
+        cout << "5. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                sms.displaySubscribers();
+                break;
+            case 2:
+                cout << "Enter email to search: ";
+                cin >> email;
+                sms.searchSubscriber(email);
+                break;
+            case 3:
+                cout << "Enter email to remove: ";
+                cin >> email;
+                sms.removeSubscriber(email);
+                break;
+            case 4:
+                cout << "Enter subscription type to list: ";
+                cin >> type;
+                sms.listSubscribersByType(type);
+                break;
+            case 5:
+                cout << "Exiting...\n";
+                break;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
+    } while (choice != 5);
+
+    return 0;
+}
